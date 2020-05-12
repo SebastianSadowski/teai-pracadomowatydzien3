@@ -3,6 +3,7 @@ package pl.sadowski.sba2tydz2carapi.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/cars")
+@RequestMapping(path = "/cars", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CarsController {
 
     CarService carService;
@@ -60,8 +61,8 @@ public class CarsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteCar(@PathVariable long id) {
-        return carService.getCarById(id).isPresent() ?
-                carService.removeCar(id) ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
-                : new ResponseEntity(HttpStatus.NOT_FOUND);
-    }
+        return carService.getCarById(id)
+                .map(ca -> carService.removeCar(ca.getId())? new ResponseEntity<>(ca, HttpStatus.OK): new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                 }
 }

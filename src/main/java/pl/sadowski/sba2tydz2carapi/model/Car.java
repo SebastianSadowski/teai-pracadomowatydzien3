@@ -5,15 +5,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+
 @AllArgsConstructor
 @Setter
 @Getter
 @ToString
 public class Car {
 
-    public long id;
-    public String mark;
-    public String model;
-    public String color;
+     long id;
+     String mark;
+     String model;
+     Color color;
 
 }
