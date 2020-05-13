@@ -37,7 +37,7 @@ public class CarService {
 
     public List<Car> getCarsByColor(String color) {
         List<Car> cars = getAllCars().stream()
-                .filter(car -> car.getColor().equals(color))
+                .filter(car -> car.getColorName().equals(color))
                 .collect(Collectors.toList());
 
         cars.forEach(c -> logger.info(c.toString()));
