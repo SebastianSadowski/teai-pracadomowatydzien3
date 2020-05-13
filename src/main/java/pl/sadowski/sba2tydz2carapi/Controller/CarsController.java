@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/cars", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/cars", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class CarsController {
 
     CarService carService;
@@ -50,8 +50,6 @@ public class CarsController {
             car.addIf(!car.hasLinks(), () -> linkTo(CarsController.class).slash(car.getId()).withSelfRel());
             car.addIf(!car.hasLink("Cars with the same color"),() -> linkTo(CarsController.class).slash("/?color=" + car.getColorName()).withRel("Cars with the same color"));
         });
-
-        cars.forEach(car -> System.out.println(car.getLinks()));
         return !cars.isEmpty() ? new ResponseEntity<>(cars, HttpStatus.FOUND) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
