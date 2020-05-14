@@ -10,21 +10,31 @@ import org.springframework.util.AntPathMatcher;
 import pl.sadowski.sba2tydz2carapi.Controller.CarsController;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @EnableSwagger2
 @Configuration
 @Profile(value = "DEV")
 public class SwaggerConfig {
 
-@Bean
-    public Docket getDocket(){
+
+    @Bean
+    public Docket getDocket() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.regex("/cars.*"))
+                .paths(PathSelectors.any())
                 .build();
     }
 }
+
+

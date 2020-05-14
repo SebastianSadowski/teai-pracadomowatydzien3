@@ -1,6 +1,8 @@
 package pl.sadowski.sba2tydz2carapi.Controller;
 
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.sadowski.sba2tydz2carapi.Service.CarService;
 import pl.sadowski.sba2tydz2carapi.model.Car;
@@ -17,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/cars", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+@RequestMapping(path = "/cars", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class CarsController {
 
     CarService carService;
@@ -32,7 +35,6 @@ public class CarsController {
 //
 //        return carService.getAllCars().isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(carService.getAllCars(), HttpStatus.FOUND);
 //    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Car> getCarById(@PathVariable long id) {
         Optional<Car> carById = carService.getCarById(id);
@@ -42,17 +44,16 @@ public class CarsController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
     }
-
-    @GetMapping("/")
-    public ResponseEntity<List<Car>> getCar(@Nullable @RequestParam(name = "color") Optional<String> color) {
+    @GetMapping("/color")
+    public ResponseEntity<List<Car>> getCar(
+            @Nullable @RequestParam(name = "color") Optional<String> color) {
         List<Car> cars = color.isPresent() ? carService.getCarsByColor(color.get()) : carService.getAllCars();
         cars.forEach(car -> {
             car.addIf(!car.hasLinks(), () -> linkTo(CarsController.class).slash(car.getId()).withSelfRel());
-            car.addIf(!car.hasLink("Cars with the same color"),() -> linkTo(CarsController.class).slash("/?color=" + car.getColorName()).withRel("Cars with the same color"));
+            car.addIf(!car.hasLink("Cars with the same color"),() -> linkTo(CarsController.class).slash("color").slash("/?color=" + car.getColorName()).withRel("Cars with the same color"));
         });
         return !cars.isEmpty() ? new ResponseEntity<>(cars, HttpStatus.FOUND) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
 
     @PostMapping("/")
     public ResponseEntity<Car> addCar(@RequestBody Car car) {
@@ -61,14 +62,12 @@ public class CarsController {
                 carService.addCar(car) ? new ResponseEntity<>(car, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
                 : new ResponseEntity<>(HttpStatus.CONFLICT);
     }
-
     @PutMapping("/")
     public ResponseEntity<Car> modifyCar(@RequestBody Car car) {
         return carService.removeCar(car.getId()) ?
                 carService.addCar(car) ? new ResponseEntity<>(car, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity deleteCar(@PathVariable long id) {
         return carService.getCarById(id)
